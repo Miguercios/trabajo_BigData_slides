@@ -11,7 +11,7 @@ página web de la asignatura puede verse aquí:
 <!-- En la linea de abajo has de sustituir "perezp44" por tu usuario de Github-->
 
 La versión final de estas transparencias puede visualizarse en:
-<a href="https://miguercios.github.io/trabajo_BigData_slides/" class="uri">https://miguercios.github.io/_trabajo_BigData_slides/</a>.
+<a href="https://miguercios.github.io/trabajo_BigData_slides/" class="uri">https://miguercios.github.io/trabajo_BigData_slides/</a>.
 
 <!-- En la linea de abajo has de sustituir "perezp44" por tu usuario de Github-->
 
