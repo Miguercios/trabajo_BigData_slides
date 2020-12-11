@@ -25,7 +25,9 @@ Covid-19 en la Comunidad Valenciana” Estamos aun manipulando los datos
 para que queden lo más cómodo posible y podamos hacer los gráficos y
 conclusiones que deseamos.
 
-Los integrantes del grupo somos: - Juan Carlos García Guardeño - Hugo
-Moneo Hernández - Miguel Montalvo Diestro
+Los integrantes del grupo somos:  
+- Juan Carlos García Guardeño  
+- Hugo Moneo Hernández  
+- Miguel Montalvo Diestro
 
 <!-- Finalmente, acuérdate que cuando hayas hecho los cambios y hayas dejado este archivo como hayáis decidido, TENEIS que knittearlo para que los cambio se actualicen en el fichero Readme.md, que es el que finalmente se visualizará en Github-->
