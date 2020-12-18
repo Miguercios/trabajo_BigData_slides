@@ -1,143 +1,976 @@
 ---
-title: "Incidencia del Covid-19 en la Comunidad Valenciana"
-subtitle: "Juan Carlos García, Hugo Moneo, Miguel Montalvo"
-author: "Universitat de València."
+title: "**Incidencia del Covid-19 en la Comunidad Valenciana** "
+subtitle: "Informe estadístico"
+author: "Autores: \n\n  Juan Carlos García Guardeño (garguar2@alumni.uv.es) \n\n Hugo Moneo Hernández (humoher@alumni.uv.es)  \n \n Miguel Montalvo Diestro (mondies@alumni.uv.es). \n\n Universitat de València"
 date: "Diciembre de 2020"
-output: ioslides_presentation
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
 ---
+layout: true
 
+background-image: url(./imagenes/fondoslides.png)
+background-size: cover
 
+---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-# Slide "especial" (en negro)
-
-## Slide con bullets incrementales {.smaller}
-
-> - La fuente de esta slide será **small**
-
-> - Los bullets aparecerán **incrementalmente**, de uno en uno.
-
-
-## Otra slide con fuente pequeña pero bullets aparecen todos a la vez {.smaller}
-
-- Se pueden crear slides con 3 marcas: `#`, con `##` y con `-----`
-
-- Con `#` se crea un slide especial (en negro), que puede servir para separar secciones
-
-- Con `##` se crean slides "normales" (en blanco)
-
-- Con `------` se crean slides en blanco, pero **sin título**
-
-## Slide con una imagen y texto 
-
-- Un poco de texto y abajo una imagen
-
-```{r, echo = FALSE, eval = TRUE, out.width = "76%", fig.align = "center"}
-knitr::include_graphics(here::here("imagenes", "ss_02_img_08_gente-tidyverse.jpg") ) 
-```
-
-- Otro bullet con texto.
-
-
----- 
-
-- Como he usado `------` se crea una slide **sin título**
-
-- Abajo otra imagen
-
-```{r echo = FALSE, out.width = "73%", fig.align = "center" , caption = "<https://xkcd.com>"}
-knitr::include_graphics(here::here( "imagenes", "ss_02_img_06_R-como-cars.jpeg" ))
-```
-
-
-## Slide con indentation {.smaller}
-
-- Para poner bullets "anidados" tienes que usar el tabulador: 2 tabuladores o 4 espacios.
-
-    - anidado 1
-
-    - anidado 2
-
-
-- Volvemos al nivel superior
-
-
-
-# slide especial ( se ve en negro )
-
-## Otra slide "normal" con `##` {.smaller}
-
--  Un enlace: para más información sobre `ioslides`, ve [aquí](https://rmarkdown.rstudio.com/ioslides_presentation_format.html)
-
-
-
-
-# **R-base  vs. [tidyverse](https://www.tidyverse.org/)**  
-
-#### Esto es un poco forzar las cosas, pero ... funciona
-   
-   
----
-
-  - "Programs must be written for people to read, and only incidentally for machines to execute"  --- Hal Abelson
-
-<br>
-
-  - "If I had one thing to tell biologists learning bioinformatics, it would be write **code for humans**, write **data for computers**" --- Vince Buffalo
-  
-  <br>
-  
-  - "An important aspect of writing data for computers is to **make your data TIDY**" --- Jenny Bryan
-
----
-    
-- Lo siguiente es un chunk, en realidad no, porque le faltan las llaves `{}`, pero si verá de forma especial
-
-```r
-data %>% filter(X1 > 400) %>% group_by(X2) %>% summarise(media = mean(X3))
-```
-  
---- 
-
-Esto sí son chunks. Se ejecutarán los 2. El primero no se verá (`echo = FALSE`) 
-
-```{r, echo = FALSE}
+```{r packages-setup, include = FALSE}
+library(tidyverse)
+library(klippy)  
+library(knitr)
+library(tibble)
+library(ggthemes)
 library(ggplot2)
+library(dplyr)
+library(patchwork)
+library(ggrepel)
+library(sf)
+library(ggspatial)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(pjpv2020.01)
+library(plotly)
+library(gganimate)
+library (gifski)
+library(gt)
+library(kableExtra)
+library(DT)
+library(leaflet) 
+library(leafem)
 ```
 
-```{r, echo = TRUE}
-ggplot(iris, aes(x = Sepal.Length, y = Petal.Length)) +
-  geom_point(color = "red")
+
+## <FONT COLOR="Green">1. Introducción </FONT>
+
+<div style="text-align: justify">
+
+El año 2020 no será un año recordado por todos los habitantes del planeta con una sonrisa en el rostro. Una pandemia se apoderaba del planeta 100 años después de la mal llamada [gripe española](https://es.wikipedia.org/wiki/Pandemia_de_gripe_de_1918) y nos hacía entrar en una pesadilla que a día de hoy todavía tiene un incierto final.
+
+Las causas de la pandemia, después de 1 año, aún no están claras. La mayoría de los cientifícos (incluida la OMS) sostienen que la **covid19** podría ser de origen animal pero para otros la existencia del *mayor centro chino de investigación virológica sobre Coronavirus* a poca distancia del mercado de Wuhan (epicentro del virus), alimenta las teorías de la conspiración. 
+
+---
+## <FONT COLOR="Green">2. Información básica sobre la Covid-19  </FONT>
+<div style="text-align: justify">
+La COVID-19 es una enfermedad infecciosa causada por el coronavirus SARS- CoV-2. Los coronavirus son una familia de virus que normalmente afectan solo a animales. Algunos de ellos también tienen la capacidad de transmitirse de los animales a las personas lo que causa problemas respiratorios.
+
+```{r echo=FALSE, out.width = "300px", out.height="150px",fig.align='center'}
+knitr::include_graphics("imagenes/imagen1.jpg")
+```
+
+El **coronavirus SARS-CoV-2** es un nuevo tipo de coronavirus que puede afectar a las personas y que se detectó por primera vez en diciembre de 2019 en la ciudad de Wuhan, provincia de Hubei, en China. 
+
+---
+
+## <FONT COLOR="Green"> Medidas preventivas. </FONT>
+
+<div style="text-align: justify">
+
+A día de hoy **no existe medicamento ni vacuna efectiva demostrada**. Un virus se puede eliminar cuando se consigue en una comunidad la inmunidad de grupo (que el 70% de la población haya pasado la enfermedad) o desarrollando una vacuna que lo neutralice. 
+
+Hasta que aparezca la ansiada vacuna tenemos que seguir cumpliendo una serie de medidas para intentar frenar el avance de la pandemia:  
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
+- Uso de mascarillas. <FONT COLOR="Red">FUNDAMENTAL!!</FONT>.
+- Lavado continuo de manos.
+- Evitar los espacios cerrados sin  ventilación.
+- Evitar locales de interior en los que la mascarilla no sea obligatoria.
+---
+
+## <FONT COLOR="Green"> 3. Indicadores de la pandemia </FONT>
+### <FONT COLOR="Green"> Tasa de Incidencia acumulada. </FONT>
+
+Son las personas que han enfermado por Covid-19 por cada 100.000 habitantes. 
+
+En este informe vamos a utilizar la tasa de incidencia acumulada y la tasa de incidencia de los últimos 14 días. 
+
+```{r echo=FALSE, out.width = "100px", out.height="50px",fig.align='center'}
+knitr::include_graphics("imagenes/i.acumulada14.png")
+```
+
+### <FONT COLOR="Green"> Tasa de mortalidad. </FONT>
+
+Normalmente se expresa como el número de muertes por cada 100.000 habitantes. Se obtiene multiplicando los fallecimientos por 100.000 y dividiendo por la población total:
+
+```{r echo=FALSE, out.width = "100px", out.height="50px",fig.align='center'}
+knitr::include_graphics("imagenes/formula_tasa_fallecidos_covid.png")
+``` 
+
+
+---
+# 4. Efectos de la Covid-19 en la C.V.
+# <FONT COLOR="Green"> Evolución de los contagios. </FONT>
+
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, comment= FALSE,out.width = '700px',out.height= '350px',fig.align='center'}
+
+dfpositivos <- rio::import("./datos/covid-19-serie-de-casos-con-pdia-positiva-en-la-comunitat-valenciana.csv")
+
+dfpositivos <- dfpositivos %>% select(`Data diagnÃ²stic laboratori/fecha diagnÃ³stico laboratorio`, `Homes/Hombres`, `Dones/Mujeres`, 
+                                      `Prov. Alacant/Alicante`, `Prov. CastellÃ³/CastellÃ³n`, `Prov. ValÃ¨ncia`)  #- los departamentos de salud no me interesan para este trabajo
+
+#aquí lo primero que tenemos que hacer es cambiar nombres raros de columnas
+
+nombres_originales1 <- names(dfpositivos)
+
+names(dfpositivos)[1] <- "Fecha PCR Positiva"
+names(dfpositivos)[2] <- "Hombres"
+names(dfpositivos)[3] <- "Mujeres"
+names(dfpositivos)[4] <- "Alicante"
+names(dfpositivos)[5] <- "Castellón"
+names(dfpositivos)[6] <- "Valencia"
+
+#install.packages("gifski")
+#install.packages("gganimate")
+
+dfpositivos$C.Valenciana <- dfpositivos$Alicante + dfpositivos$Castellón + dfpositivos$Valencia
+
+grafico1 <- ggplot(dfpositivos, aes(`Fecha PCR Positiva`, `C.Valenciana`)) + 
+  geom_line(color="green", size=1)+ labs(title = "Positivos detectados por PCR", "x = Fecha", caption = "Fuente GVA")+ theme_minimal()
+
+grafico1
 ```
 
 
-## Bibliografía. {.smaller}
+---
+## <FONT COLOR="Green">Evolución de los fallecidos. </FONT>
 
-En realidad son algunos links por si os ayudan a hacer vuestras `ioslides`
 
 
-- En el libro [R Markdown: The Definitive Guide](https://bookdown.org/yihui/rmarkdown/) hay un capítulo dedicado a las `ioslides`, concretamente [aquí](https://rmarkdown.rstudio.com/ioslides_presentation_format.html). El repo con el código fuente del libro está [aquí](https://github.com/rstudio/rmarkdown-book) y el del capítulo 4 sobre presentaciones [aquí](https://github.com/rstudio/rmarkdown-book/blob/master/04-presentations.Rmd)
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, comment= FALSE,,out.width = '700px',out.height= '350px',fig.align='center'}
 
-- [Presentation with ioslides](https://garrettgman.github.io/rmarkdown/ioslides_presentation_format.html)
+dffall <- rio::import("./datos/covid-19-serie-de-personas-fallecidas-en-la-comunitat-valenciana.csv")
 
-- [Tutorial sobre Rmd](https://codingclubuc3m.rbind.io/post/2019-09-24/) con una pequeña sección sobre `ioslides`.
+#- los departamentos de salud no me interesan para este trabajo
+dffall <- dffall %>% select(`Data de defunciÃ³/fecha de defunciÃ³n`, `Homes/Hombres`, `Dones/Mujeres`,
+                            `Prov. Alacant/Alicante`, `Prov. CastellÃ³/CastellÃ³n`, `Prov. ValÃ¨ncia`) 
 
-- Un [ejemplo de *ioslides*](https://choux130.github.io/slide_thesis_ioslides/#1). El código está [aquí](https://github.com/choux130/slide_thesis_ioslides). 
+#aquí lo primero que tenemos que hacer es cambiar nombres raros de columnas
 
-<br><br>
+nombres_originales <- names(dffall)
 
-Dos links más que igual os resultan complicados:  
+names(dffall)[1] <- "Fecha_Defunción"
+names(dffall)[2] <- "Hombres"
+names(dffall)[3] <- "Mujeres"
+names(dffall)[4] <- "Alicante"
+names(dffall)[5] <- "Castellón"
+names(dffall)[6] <- "Valencia"
 
-- <https://www.rdocumentation.org/packages/rmarkdown/versions/1.10/topics/ioslides_presentation>  
+dffall$C.Valenciana <- dffall$Alicante + dffall$Castellón + dffall$Valencia
+
+grafico2 <- ggplot(dffall, aes(`Fecha_Defunción`, `C.Valenciana`)) + 
+  geom_line(color="orange", size=1)+ labs(title = "Fallecidos por Covid-19")+ theme_minimal()
   
-- <https://stackoverflow.com/questions/50258283/how-to-enable-syntax-highlighting-in-code-chunks-within-r-markdown-ioslides-pres>  
+
+grafico2
+```
+
+---
+## Fallecidos porgénero
+
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, comment= FALSE,,out.width = '700px',out.height= '350px',fig.align='center'}
+dffall <- rio::import("./datos/covid-19-serie-de-personas-fallecidas-en-la-comunitat-valenciana.csv")
+
+#- los departamentos de salud no me interesan para este trabajo
+dffall <- dffall %>% select(`Data de defunciÃ³/fecha de defunciÃ³n`, `Homes/Hombres`, `Dones/Mujeres`,
+                            `Prov. Alacant/Alicante`, `Prov. CastellÃ³/CastellÃ³n`, `Prov. ValÃ¨ncia`) 
+
+#aquí lo primero que tenemos que hacer es cambiar nombres raros de columnas
+
+nombres_originales <- names(dffall)
+
+names(dffall)[1] <- "Fecha_Defunción"
+names(dffall)[2] <- "Hombres"
+names(dffall)[3] <- "Mujeres"
+names(dffall)[4] <- "Alicante"
+names(dffall)[5] <- "Castellón"
+names(dffall)[6] <- "Valencia"
+
+dffall$C.Valenciana <- dffall$Alicante + dffall$Castellón + dffall$Valencia
+
+
+p <- ggplot(dffall) + geom_line(aes(x= Fecha_Defunción, y= Hombres),color = "yellow") +
+  geom_line (aes(x= Fecha_Defunción, y = Mujeres), color = "blue")+
+    labs(title = "Fallecidos por género",
+         subtitle = "Comparación",
+       caption = "Datos proporcionados por la GVA",
+       x="Fecha", y="Número de fallecidos")+
+  theme_dark()
+
+ggplotly(p)
+
+```
+
+Como curiosidad aportamos este gráfico interactivo en el que se muestra que se han producido más fallecimientos en hombres que en mujeres.
+
+---
+##Fallecidos por género y grupo de edad
+
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, comment= FALSE, include= FALSE,out.width = '700px',out.height= '350px',fig.align='center'}
+
+aa <- as.data.frame(colours())
+
+dffalledad <- rio::import("./datos/covid-19-datos-de-casos-y-personas-fallecidas-por-grupo-de-edad-y-sexo-acumulados-desde-el-31-01.csv")
+
+dffalledadmujeres <- dffalledad %>%  slice(c(1:10))
+dffalledadhombres <- dffalledad %>%  slice(c(11:20))
+
+janitor::clean_names(dffalledadmujeres) %>% names()
+```
+
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, comment= FALSE,,out.width = '700px',out.height= '350px',fig.align='center'}
+
+p1 <- ggplot (dffalledadmujeres, aes(Grup_edat, Percentatge_morts)) + geom_col(fill= "tomato") + coord_flip() +
+  labs (title = "% muertes de mujeres",
+    subtitle = "Clasificado por grupo de edad",
+    y = "% muertes COVID19",
+    x = "Grupo de edad") + theme_solarized()
+
+p2 <- ggplot (dffalledadhombres, aes(Grup_edat, Percentatge_morts)) + geom_col(fill= "brown") + coord_flip() + 
+  labs (title = "% muertes de hombres",
+    subtitle = "Clasificado por grupo de edad",
+    caption = "Fuente GVA",
+    y = "% muertes COVID19",
+    x = "Grupo de edad") + theme_solarized()
+
+p1+p2
+```
+
+Podemos observar que, desgraciadamente, los individuos que tenían más de 70 años han sido las grandes víctimas de esta pandemia.
+
+---
+
+# 5. Variables analizadas.
+##<FONT COLOR="Green">Incidencia acumulada últimos 14 días. </FONT>
+Hemos explicado en el *apartado 3*, qué es y como calcular,la incidencia acumulada a 14 días. Se utiliza para tener un indicador de la evolución de la pandemia en los últimos 14 días, proporcionando una herramienta útil a los responsables de las administraciones públicas para tomar decisiones sobre las restricciones a aplicar.
   
-  
+### <FONT COLOR="Green">Semáforo Covid-19. </FONT>
+
+Se ha creado el *Semáforo Covid* para determinar que medidas aplicar según el riesgo en que se encuentre cada municipio. El semáforo analiza varios indicadores: incidencia acumulada a 14 días, presión UCI, hospitalizaciones, incidencia a 7 días... etc. 
+
+---
+
+Hemos querido mostrar los 5 municipios valencianos (con mayor número de población) que se encuentran en cada estado según incidencia a 14 días.
+
+```{r echo=FALSE, out.width = "500px", out.height="250px",fig.align='center'}
+knitr::include_graphics("imagenes/semaforo_covid1.jpg")
+```
+---
+
+<CENTER><FONT COLOR="Grey">"Incidencia a 14 días menor a 25"</FONT></CENTER>
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, comment= FALSE}
+
+dfgva <- rio::import("./datos/covid-19-casos-confirmados-por-pcr-casos-pcr-en-los-ultimos-14-dias-y-personas-fallecidas-por-mu.csv")
+dfpoblacion_gva <- rio::import("./datos/poblacion_muni_vlc.xls")
+load("./datos/geometrias_clase_10.RData")
+
+nombres_originales <- names(dfgva)
+
+names(dfgva)[1] <- "CodMunicipio"
+names(dfgva)[2] <- "Municipi"
+names(dfgva)[3] <- "Casos"
+names(dfgva)[4] <- "Incidencia_acumulada"
+names(dfgva)[5] <- "Casos_ult14d"
+names(dfgva)[6] <- "Incidencia_ acumulada_ult14d"
+names(dfgva)[7] <- "Defuncions"
+names(dfgva)[8] <- "Tasa_defuncion"
+
+dfgva <- dfgva %>% mutate(CodMunicipio = as.numeric(CodMunicipio))
+municipios_2017 <- municipios_2017 %>% mutate(INECodMuni = as.numeric(INECodMuni))
+dfpueblos <- inner_join(dfgva, municipios_2017, by = c("CodMunicipio" = "INECodMuni" ))
+dfpueblos_def <- inner_join(dfpueblos, dfpoblacion_gva, by = c("CodMunicipio" = "Codi_Municipi" ))
+dfmunicipios <- dfpueblos_def %>% select(`CodMunicipio`,`NombreMuni`, `Poblacions`,`Casos`,`Incidencia_acumulada`,`Defuncions`, `Casos_ult14d`, `Incidencia_ acumulada_ult14d`, `Tasa_defuncion`, `INECodProv`, `INECodCCAA`, `NombreMuni`, `NombreProv`, `geometry` )
+rm(dfgva,dfpoblacion_gva,dfpueblos,dfpueblos_def, municipios_2017, IGN_nomencla_muni, rios, world)
+
+dfmunicipios_25 <- dfmunicipios %>% filter(`Incidencia_ acumulada_ult14d` <= 25)%>% arrange(desc(`Poblacions`))%>% slice(1:5)%>% arrange(desc(`Incidencia_ acumulada_ult14d`)) 
+dfmunicipios_25_tabla <- dfmunicipios_25 %>% select(`NombreMuni`,`Poblacions`, `Incidencia_ acumulada_ult14d`) %>% arrange(desc(`Incidencia_ acumulada_ult14d`)) 
+
+dfmunicipios_25_tabla %>%
+  kbl() %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  kable_styling(bootstrap_options = c("striped", "hover")) %>% row_spec(row = 0:5 ,bold = T,background = "#c4f1b7", font_size = 15)%>%
+  scroll_box(width = "100%", height = "300px")
 
 
 
-# Mucha suerte con las slides !!!
+```
+
+<CENTER><FONT COLOR="Grey">"Incidencia a 14 días entre 25 y 50"</FONT></CENTER>
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, comment= FALSE}
+
+dfgva <- rio::import("./datos/covid-19-casos-confirmados-por-pcr-casos-pcr-en-los-ultimos-14-dias-y-personas-fallecidas-por-mu.csv")
+dfpoblacion_gva <- rio::import("./datos/poblacion_muni_vlc.xls")
+load("./datos/geometrias_clase_10.RData")
+
+nombres_originales <- names(dfgva)
+
+names(dfgva)[1] <- "CodMunicipio"
+names(dfgva)[2] <- "Municipi"
+names(dfgva)[3] <- "Casos"
+names(dfgva)[4] <- "Incidencia_acumulada"
+names(dfgva)[5] <- "Casos_ult14d"
+names(dfgva)[6] <- "Incidencia_ acumulada_ult14d"
+names(dfgva)[7] <- "Defuncions"
+names(dfgva)[8] <- "Tasa_defuncion"
+
+dfgva <- dfgva %>% mutate(CodMunicipio = as.numeric(CodMunicipio))
+municipios_2017 <- municipios_2017 %>% mutate(INECodMuni = as.numeric(INECodMuni))
+dfpueblos <- inner_join(dfgva, municipios_2017, by = c("CodMunicipio" = "INECodMuni" ))
+dfpueblos_def <- inner_join(dfpueblos, dfpoblacion_gva, by = c("CodMunicipio" = "Codi_Municipi" ))
+dfmunicipios <- dfpueblos_def %>% select(`CodMunicipio`,`NombreMuni`, `Poblacions`,`Casos`,`Incidencia_acumulada`,`Defuncions`, `Casos_ult14d`, `Incidencia_ acumulada_ult14d`, `Tasa_defuncion`, `INECodProv`, `INECodCCAA`, `NombreMuni`, `NombreProv`, `geometry` )
+rm(dfgva,dfpoblacion_gva,dfpueblos,dfpueblos_def, municipios_2017, IGN_nomencla_muni, rios, world)
+
+dfmunicipios25_50 <- dfmunicipios %>% filter(`Incidencia_ acumulada_ult14d` %in% (25:50))%>% arrange(desc(`Poblacions`))%>% slice(1:5)%>% arrange(desc(`Incidencia_ acumulada_ult14d`)) 
+dfmunicipios_25_50_tabla <- dfmunicipios25_50 %>% select(`NombreMuni`,`Poblacions`, `Incidencia_ acumulada_ult14d`) %>% arrange(desc(`Incidencia_ acumulada_ult14d`)) 
+
+dfmunicipios_25_50_tabla %>%
+  kbl() %>% 
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  kable_styling(bootstrap_options = c("striped", "hover")) %>% row_spec(row = 0:5 ,bold = T, background = "#f3e2ab", font_size = 15)%>%
+  scroll_box(width = "100%", height = "300px")
+
+```
+
+---
+
+<CENTER><FONT COLOR="Grey">"Incidencia a 14 días entre 50 y 150"</FONT></CENTER>
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, comment= FALSE}
+
+dfgva <- rio::import("./datos/covid-19-casos-confirmados-por-pcr-casos-pcr-en-los-ultimos-14-dias-y-personas-fallecidas-por-mu.csv")
+dfpoblacion_gva <- rio::import("./datos/poblacion_muni_vlc.xls")
+load("./datos/geometrias_clase_10.RData")
+
+nombres_originales <- names(dfgva)
+
+names(dfgva)[1] <- "CodMunicipio"
+names(dfgva)[2] <- "Municipi"
+names(dfgva)[3] <- "Casos"
+names(dfgva)[4] <- "Incidencia_acumulada"
+names(dfgva)[5] <- "Casos_ult14d"
+names(dfgva)[6] <- "Incidencia_ acumulada_ult14d"
+names(dfgva)[7] <- "Defuncions"
+names(dfgva)[8] <- "Tasa_defuncion"
+
+dfgva <- dfgva %>% mutate(CodMunicipio = as.numeric(CodMunicipio))
+municipios_2017 <- municipios_2017 %>% mutate(INECodMuni = as.numeric(INECodMuni))
+dfpueblos <- inner_join(dfgva, municipios_2017, by = c("CodMunicipio" = "INECodMuni" ))
+dfpueblos_def <- inner_join(dfpueblos, dfpoblacion_gva, by = c("CodMunicipio" = "Codi_Municipi" ))
+dfmunicipios <- dfpueblos_def %>% select(`CodMunicipio`,`NombreMuni`, `Poblacions`,`Casos`,`Incidencia_acumulada`,`Defuncions`, `Casos_ult14d`, `Incidencia_ acumulada_ult14d`, `Tasa_defuncion`, `INECodProv`, `INECodCCAA`, `NombreMuni`, `NombreProv`, `geometry` )
+rm(dfgva,dfpoblacion_gva,dfpueblos,dfpueblos_def, municipios_2017, IGN_nomencla_muni, rios, world)
+
+dfmunicipios50_150 <- dfmunicipios %>% filter(`Incidencia_ acumulada_ult14d` %in% (50:150))%>% arrange(desc(`Poblacions`))%>% slice(1:5) %>% arrange(desc(`Incidencia_ acumulada_ult14d`)) 
+dfmunicipios_50_150_tabla <- dfmunicipios50_150 %>% select(`NombreMuni`,`Poblacions`, `Incidencia_ acumulada_ult14d`) %>% arrange(desc(`Incidencia_ acumulada_ult14d`)) 
+
+dfmunicipios_50_150_tabla %>%
+  kbl() %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  kable_styling(bootstrap_options = c("striped", "hover")) %>% row_spec(row = 0:5 , bold = T, background = "#f3c364", font_size = 15)%>%
+  scroll_box(width = "100%", height = "300px")
+```
+
+<CENTER><FONT COLOR="Grey">"Incidencia a 14 días entre 150 y 250"</FONT></CENTER>
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, comment= FALSE}
+
+dfgva <- rio::import("./datos/covid-19-casos-confirmados-por-pcr-casos-pcr-en-los-ultimos-14-dias-y-personas-fallecidas-por-mu.csv")
+dfpoblacion_gva <- rio::import("./datos/poblacion_muni_vlc.xls")
+load("./datos/geometrias_clase_10.RData")
+
+nombres_originales <- names(dfgva)
+
+names(dfgva)[1] <- "CodMunicipio"
+names(dfgva)[2] <- "Municipi"
+names(dfgva)[3] <- "Casos"
+names(dfgva)[4] <- "Incidencia_acumulada"
+names(dfgva)[5] <- "Casos_ult14d"
+names(dfgva)[6] <- "Incidencia_ acumulada_ult14d"
+names(dfgva)[7] <- "Defuncions"
+names(dfgva)[8] <- "Tasa_defuncion"
+
+dfgva <- dfgva %>% mutate(CodMunicipio = as.numeric(CodMunicipio))
+municipios_2017 <- municipios_2017 %>% mutate(INECodMuni = as.numeric(INECodMuni))
+dfpueblos <- inner_join(dfgva, municipios_2017, by = c("CodMunicipio" = "INECodMuni" ))
+dfpueblos_def <- inner_join(dfpueblos, dfpoblacion_gva, by = c("CodMunicipio" = "Codi_Municipi" ))
+dfmunicipios <- dfpueblos_def %>% select(`CodMunicipio`,`NombreMuni`, `Poblacions`,`Casos`,`Incidencia_acumulada`,`Defuncions`, `Casos_ult14d`, `Incidencia_ acumulada_ult14d`, `Tasa_defuncion`, `INECodProv`, `INECodCCAA`, `NombreMuni`, `NombreProv`, `geometry` )
+rm(dfgva,dfpoblacion_gva,dfpueblos,dfpueblos_def, municipios_2017, IGN_nomencla_muni, rios, world)
+
+dfmunicipios150_250 <- dfmunicipios %>% filter(`Incidencia_ acumulada_ult14d` %in% (150:250))%>% arrange(desc(`Poblacions`)) %>% slice(1:5) %>% arrange(desc(`Incidencia_ acumulada_ult14d`)) 
+dfmunicipios_150_250_tabla <- dfmunicipios150_250 %>% select(`NombreMuni`,`Poblacions`, `Incidencia_ acumulada_ult14d`) %>% arrange(desc(`Incidencia_ acumulada_ult14d`)) 
+
+dfmunicipios_150_250_tabla %>%
+  kbl() %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  kable_styling(bootstrap_options = c("striped", "hover")) %>% row_spec(row = 0:5 ,bold = T,background = "#e35b43", font_size = 15)%>%
+  scroll_box(width = "100%", height = "300px")
+
+```
+
+---
+
+<CENTER><FONT COLOR="Grey">"Incidencia a 14 días mayor de 250"</FONT></CENTER>
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, comment= FALSE}
+
+dfgva <- rio::import("./datos/covid-19-casos-confirmados-por-pcr-casos-pcr-en-los-ultimos-14-dias-y-personas-fallecidas-por-mu.csv")
+dfpoblacion_gva <- rio::import("./datos/poblacion_muni_vlc.xls")
+load("./datos/geometrias_clase_10.RData")
+
+nombres_originales <- names(dfgva)
+
+names(dfgva)[1] <- "CodMunicipio"
+names(dfgva)[2] <- "Municipi"
+names(dfgva)[3] <- "Casos"
+names(dfgva)[4] <- "Incidencia_acumulada"
+names(dfgva)[5] <- "Casos_ult14d"
+names(dfgva)[6] <- "Incidencia_ acumulada_ult14d"
+names(dfgva)[7] <- "Defuncions"
+names(dfgva)[8] <- "Tasa_defuncion"
+
+dfgva <- dfgva %>% mutate(CodMunicipio = as.numeric(CodMunicipio))
+municipios_2017 <- municipios_2017 %>% mutate(INECodMuni = as.numeric(INECodMuni))
+dfpueblos <- inner_join(dfgva, municipios_2017, by = c("CodMunicipio" = "INECodMuni" ))
+dfpueblos_def <- inner_join(dfpueblos, dfpoblacion_gva, by = c("CodMunicipio" = "Codi_Municipi" ))
+dfmunicipios <- dfpueblos_def %>% select(`CodMunicipio`,`NombreMuni`, `Poblacions`,`Casos`,`Incidencia_acumulada`,`Defuncions`, `Casos_ult14d`, `Incidencia_ acumulada_ult14d`, `Tasa_defuncion`, `INECodProv`, `INECodCCAA`, `NombreMuni`, `NombreProv`, `geometry` )
+rm(dfgva,dfpoblacion_gva,dfpueblos,dfpueblos_def, municipios_2017, IGN_nomencla_muni, rios, world)
+
+dfmunicipios250 <- dfmunicipios %>% filter(`Incidencia_ acumulada_ult14d` >= 250)%>% arrange(desc(`Poblacions`)) %>% slice(1:5) %>%  arrange(desc(`Incidencia_ acumulada_ult14d`)) 
+dfmunicipios_250_tabla <- dfmunicipios250 %>% select(`NombreMuni`,`Poblacions`, `Incidencia_ acumulada_ult14d`) %>% arrange(desc(`Incidencia_ acumulada_ult14d`)) 
+
+dfmunicipios_250_tabla %>%
+  kbl() %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  kable_styling(bootstrap_options = c("striped", "hover")) %>% row_spec(row = 0:5 ,bold = T,background = "#a3042b", font_size = 15)%>%
+  scroll_box(width = "100%", height = "300px")
+```
+
+---
+
+### <FONT COLOR="Green">Comparación Ciudades & Pueblos. </FONT>
+
+En este gráfico hemos querido hacer constar la diferencia que existe entre pueblos (menos de 10.000 habitantes) y ciudades (más de 10.000 habitantes) respecto a la variable analizada. 
+
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, comment= FALSE,,out.width = '650px',out.height= '400px',fig.align='center'}
+
+dfgva <- rio::import("./datos/covid-19-casos-confirmados-por-pcr-casos-pcr-en-los-ultimos-14-dias-y-personas-fallecidas-por-mu.csv")
+dfpoblacion_gva <- rio::import("./datos/poblacion_muni_vlc.xls")
+load("./datos/geometrias_clase_10.RData")
+
+nombres_originales <- names(dfgva)
+
+names(dfgva)[1] <- "CodMunicipio"
+names(dfgva)[2] <- "Municipi"
+names(dfgva)[3] <- "Casos"
+names(dfgva)[4] <- "Incidencia_acumulada"
+names(dfgva)[5] <- "Casos_ult14d"
+names(dfgva)[6] <- "Incidencia_ acumulada_ult14d"
+names(dfgva)[7] <- "Defuncions"
+names(dfgva)[8] <- "Tasa_defuncion"
+
+dfgva <- dfgva %>% mutate(CodMunicipio = as.numeric(CodMunicipio))
+municipios_2017 <- municipios_2017 %>% mutate(INECodMuni = as.numeric(INECodMuni))
+dfpueblos <- inner_join(dfgva, municipios_2017, by = c("CodMunicipio" = "INECodMuni" ))
+dfpueblos_def <- inner_join(dfpueblos, dfpoblacion_gva, by = c("CodMunicipio" = "Codi_Municipi" ))
+dfmunicipios <- dfpueblos_def %>% select(`CodMunicipio`,`NombreMuni`, `Poblacions`,`Casos`,`Incidencia_acumulada`,`Defuncions`, `Casos_ult14d`, `Incidencia_ acumulada_ult14d`, `Tasa_defuncion`, `INECodProv`, `INECodCCAA`, `NombreMuni`, `NombreProv`, `geometry` )
+rm(dfgva,dfpoblacion_gva,dfpueblos,dfpueblos_def, municipios_2017, IGN_nomencla_muni, rios, world)
+
+dfmunicipios250 <- dfmunicipios %>% filter(`Incidencia_ acumulada_ult14d` >= 250)%>% arrange(desc(`Poblacions`)) %>% slice(1:5) %>%  arrange(desc(`Incidencia_ acumulada_ult14d`)) 
+dfmunicipios_250_tabla <- dfmunicipios250 %>% select(`NombreMuni`,`Poblacions`, `Incidencia_ acumulada_ult14d`) %>% arrange(desc(`Incidencia_ acumulada_ult14d`))
+
+dfciudades <- dfmunicipios %>% filter(`Poblacions` >= 10000)
+dfpueblos <- dfmunicipios %>% filter(`Poblacions` <= 10000)
+
+dfciudades_25 <- dfciudades %>% filter(`Incidencia_ acumulada_ult14d` <= 25)%>% arrange(desc(`Incidencia_ acumulada_ult14d`)) # No hay ninguna ciudad
+dfciudades25_50 <- dfciudades %>% filter (`Incidencia_ acumulada_ult14d` %in% (25:50))%>% arrange(desc(`Incidencia_ acumulada_ult14d`))
+dfciudades50_150 <- dfciudades %>% filter (`Incidencia_ acumulada_ult14d` %in% (50:150))%>% arrange(desc(`Incidencia_ acumulada_ult14d`))
+dfciudades150_250 <- dfciudades %>% filter (`Incidencia_ acumulada_ult14d` %in% (150:250)) %>% arrange(desc(`Incidencia_ acumulada_ult14d`))
+dfciudades_250 <- dfciudades %>% filter(`Incidencia_ acumulada_ult14d` >= 250)%>% arrange(desc(`Incidencia_ acumulada_ult14d`))
+
+dfpueblos_25 <- dfpueblos %>% filter(`Incidencia_ acumulada_ult14d` <= 25) %>% arrange(desc(`Incidencia_ acumulada_ult14d`))
+dfpueblos25_50 <- dfpueblos %>% filter (`Incidencia_ acumulada_ult14d` %in% (25:50)) %>% arrange(desc(`Incidencia_ acumulada_ult14d`))
+dfpueblos50_150 <- dfpueblos %>% filter (`Incidencia_ acumulada_ult14d` %in% (50:150)) %>% arrange(desc(`Incidencia_ acumulada_ult14d`))
+dfpueblos150_250 <- dfpueblos %>% filter (`Incidencia_ acumulada_ult14d` %in% (150:250)) %>% arrange(desc(`Incidencia_ acumulada_ult14d`))
+dfpueblos_250 <- dfpueblos %>% filter(`Incidencia_ acumulada_ult14d` >= 250) %>% arrange(desc(`Poblacions`))
+
+tabla_resumen <- data.frame(
+  Número_Incidencias  = c("Incidencia_menos_25", "Incidencia_entre_25_50","Incidencia_entre_50_150","Incidencia_entre_150_250","Incidencia_más_250" ),  
+  Pueblos = c(211, 17, 71, 54, 91), 
+  Ciudades = c(0, 2, 32, 30, 37)  )
+
+p <- ggplot (tabla_resumen, aes(Número_Incidencias, Pueblos))+
+geom_col(fill= "steelblue") + coord_flip() + 
+  labs (title = "Incidencia últ.14d",
+                                                   y = "Grupos_Incidencia",
+                                                   x = "Número_Pueblos") 
 
 
+g  <- ggplot (tabla_resumen, aes(Número_Incidencias, Ciudades)) + 
+  geom_col(fill= "tomato") + coord_flip()+
+  labs (title = "Incidencia últ.14d",
+        y = "Grupos_Incidencia",
+        x = "Número_Ciudades") 
+
+p+g
+
+
+```
+
+---
+
+# <FONT COLOR="Green">Incidencia acumulada. </FONT>
+
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, comment= FALSE}
+
+#buscamos los 5 municipios que tienen un tasa de incidencia acumulada mayor. Hacemos tabla.
+
+dfgva <- rio::import("./datos/covid-19-casos-confirmados-por-pcr-casos-pcr-en-los-ultimos-14-dias-y-personas-fallecidas-por-mu.csv")
+dfpoblacion_gva <- rio::import("./datos/poblacion_muni_vlc.xls")
+load("./datos/geometrias_clase_10.RData")
+
+nombres_originales <- names(dfgva)
+
+names(dfgva)[1] <- "CodMunicipio"
+names(dfgva)[2] <- "Municipi"
+names(dfgva)[3] <- "Casos"
+names(dfgva)[4] <- "Incidencia_acumulada"
+names(dfgva)[5] <- "Casos_ult14d"
+names(dfgva)[6] <- "Incidencia_ acumulada_ult14d"
+names(dfgva)[7] <- "Defuncions"
+names(dfgva)[8] <- "Tasa_defuncion"
+
+dfgva <- dfgva %>% mutate(CodMunicipio = as.numeric(CodMunicipio))
+municipios_2017 <- municipios_2017 %>% mutate(INECodMuni = as.numeric(INECodMuni))
+dfpueblos <- inner_join(dfgva, municipios_2017, by = c("CodMunicipio" = "INECodMuni" ))
+dfpueblos_def <- inner_join(dfpueblos, dfpoblacion_gva, by = c("CodMunicipio" = "Codi_Municipi" ))
+dfmunicipios <- dfpueblos_def %>% select(`CodMunicipio`,`NombreMuni`, `Poblacions`,`Casos`,`Incidencia_acumulada`,`Defuncions`, `Casos_ult14d`, `Incidencia_ acumulada_ult14d`, `Tasa_defuncion`, `INECodProv`, `INECodCCAA`, `NombreMuni`, `NombreProv`, `geometry` )
+rm(dfgva,dfpoblacion_gva,dfpueblos,dfpueblos_def, municipios_2017, IGN_nomencla_muni, rios, world)
+
+dfmunicipios_masI <- dfmunicipios %>% slice_max(Incidencia_acumulada, n = 5) %>% arrange(desc(`Incidencia_acumulada`))
+
+dfmunicipios_masI_tabla <- dfmunicipios_masI %>% select(`NombreMuni`,`Poblacions`, `Incidencia_acumulada`) %>% arrange(desc(`Incidencia_acumulada`))
+
+kbl(dfmunicipios_masI_tabla) %>% 
+  kable_paper("striped", full_width = F) %>%
+  column_spec(1:3, bold = T) %>%
+  row_spec(0, bold = T, color = "white", background = "#452AE6")%>%
+  scroll_box(width = "100%", height = "300px")
+
+```
+
+Estos son los 5 municipios valencianos con una incidencia acumulada mayor.
+
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, comment= FALSE}
+
+#Tabla con Bandera de Villahermosa del río.
+
+dfgva <- rio::import("./datos/covid-19-casos-confirmados-por-pcr-casos-pcr-en-los-ultimos-14-dias-y-personas-fallecidas-por-mu.csv")
+dfpoblacion_gva <- rio::import("./datos/poblacion_muni_vlc.xls")
+load("./datos/geometrias_clase_10.RData")
+
+nombres_originales <- names(dfgva)
+
+names(dfgva)[1] <- "CodMunicipio"
+names(dfgva)[2] <- "Municipi"
+names(dfgva)[3] <- "Casos"
+names(dfgva)[4] <- "Incidencia_acumulada"
+names(dfgva)[5] <- "Casos_ult14d"
+names(dfgva)[6] <- "Incidencia_ acumulada_ult14d"
+names(dfgva)[7] <- "Defuncions"
+names(dfgva)[8] <- "Tasa_defuncion"
+
+dfgva <- dfgva %>% mutate(CodMunicipio = as.numeric(CodMunicipio))
+municipios_2017 <- municipios_2017 %>% mutate(INECodMuni = as.numeric(INECodMuni))
+dfpueblos <- inner_join(dfgva, municipios_2017, by = c("CodMunicipio" = "INECodMuni" ))
+dfpueblos_def <- inner_join(dfpueblos, dfpoblacion_gva, by = c("CodMunicipio" = "Codi_Municipi" ))
+dfmunicipios <- dfpueblos_def %>% select(`CodMunicipio`,`NombreMuni`, `Poblacions`,`Casos`,`Incidencia_acumulada`,`Defuncions`, `Casos_ult14d`, `Incidencia_ acumulada_ult14d`, `Tasa_defuncion`, `INECodProv`, `INECodCCAA`, `NombreMuni`, `NombreProv`, `geometry` )
+rm(dfgva,dfpoblacion_gva,dfpueblos,dfpueblos_def, municipios_2017, IGN_nomencla_muni, rios, world)
+
+MunicipioMayorInciAcu <- dfmunicipios %>% slice_max(Incidencia_acumulada, n=1)
+
+ImagenVilla <- "https://www.comprarbanderas.es/images/banderas/400/7015-villahermosa-del-rio_400px.jpg"
+
+Tabla_MunicipioMayorInciAcu <- MunicipioMayorInciAcu %>% gt()
+
+Tabla_MunicipioMayorInciAcu <- MunicipioMayorInciAcu %>% group_by(NombreMuni) %>% slice_max(Incidencia_acumulada, n = 1) %>% add_column(ImagenVilla) %>% 
+  select(NombreMuni,Poblacions,Incidencia_acumulada,ImagenVilla) %>% ungroup()
+
+Tabla_MunicipioMayorInciAcu %>% gt() %>% 
+  gt::text_transform(locations = cells_body(columns = vars(ImagenVilla)),
+                     fn = function(x) {gt::web_image(x, height = 50)}) %>% tab_header(title = md("**Municipio con mayor incidencia acumulada**"),subtitle = md("**Comunidad Valenciana**")) %>%
+  tab_options(heading.background.color = "orange", column_labels.font.weight = "bold")
+
+
+```
+
+---
+
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, comment= FALSE}
+#buscamos las 5 ciudades que tienen un tasa de incidencia acumulada menor. Hacemos tabla y los situamos en el mapa
+
+dfmunicipios_menosI <- dfmunicipios %>% slice_min(Incidencia_acumulada, n = 5) %>% arrange(desc(`Poblacions`)) %>% slice (1:5)
+
+dfmunicipios_menosI_tabla <- dfmunicipios_menosI %>% select(`NombreMuni`,`Poblacions`, `Incidencia_acumulada`) %>% arrange(desc(`Poblacions`))
+
+kbl(dfmunicipios_menosI_tabla) %>% 
+  kable_paper("striped", full_width = F) %>%
+  column_spec(1:3, bold = T) %>%
+  row_spec(0, bold = T, color = "white", background = "#452AE6")%>%
+  scroll_box(width = "100%", height = "300px")
+
+```
+
+Estos son los 5 municipios valencianos con una incidencia acumulada menor. Como había muchos municipios con una incidencia de 0, hemos cogido los 5 que tenía una población mayor.
+
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, comment= FALSE}
+
+#Tabla con bandera de Vall de Gallinera.
+
+dfgva <- rio::import("./datos/covid-19-casos-confirmados-por-pcr-casos-pcr-en-los-ultimos-14-dias-y-personas-fallecidas-por-mu.csv")
+dfpoblacion_gva <- rio::import("./datos/poblacion_muni_vlc.xls")
+load("./datos/geometrias_clase_10.RData")
+
+nombres_originales <- names(dfgva)
+
+names(dfgva)[1] <- "CodMunicipio"
+names(dfgva)[2] <- "Municipi"
+names(dfgva)[3] <- "Casos"
+names(dfgva)[4] <- "Incidencia_acumulada"
+names(dfgva)[5] <- "Casos_ult14d"
+names(dfgva)[6] <- "Incidencia_ acumulada_ult14d"
+names(dfgva)[7] <- "Defuncions"
+names(dfgva)[8] <- "Tasa_defuncion"
+
+dfgva <- dfgva %>% mutate(CodMunicipio = as.numeric(CodMunicipio))
+municipios_2017 <- municipios_2017 %>% mutate(INECodMuni = as.numeric(INECodMuni))
+dfpueblos <- inner_join(dfgva, municipios_2017, by = c("CodMunicipio" = "INECodMuni" ))
+dfpueblos_def <- inner_join(dfpueblos, dfpoblacion_gva, by = c("CodMunicipio" = "Codi_Municipi" ))
+dfmunicipios <- dfpueblos_def %>% select(`CodMunicipio`,`NombreMuni`, `Poblacions`,`Casos`,`Incidencia_acumulada`,`Defuncions`, `Casos_ult14d`, `Incidencia_ acumulada_ult14d`, `Tasa_defuncion`, `INECodProv`, `INECodCCAA`, `NombreMuni`, `NombreProv`, `geometry` )
+rm(dfgva,dfpoblacion_gva,dfpueblos,dfpueblos_def, municipios_2017, IGN_nomencla_muni, rios, world)
+
+MunicipioMenorInciAcu <- dfmunicipios %>% slice_min(Incidencia_acumulada, n=1)%>% arrange(desc(`Poblacions`))%>% slice(1:1)
+
+ImagenVall <- "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Escut_de_la_Vall_de_Gallinera.svg/85px-Escut_de_la_Vall_de_Gallinera.svg.png"
+
+Tabla_MunicipioMenorInciAcu <- MunicipioMenorInciAcu %>% gt()
+
+Tabla_MunicipioMenorInciAcu <- MunicipioMenorInciAcu %>% group_by(NombreMuni) %>% slice_max(Incidencia_acumulada, n = 1) %>% add_column(ImagenVall) %>% 
+  select(NombreMuni,Poblacions,Incidencia_acumulada,ImagenVall) %>% ungroup()
+
+Tabla_MunicipioMenorInciAcu %>% gt() %>% 
+  gt::text_transform(locations = cells_body(columns = vars(ImagenVall)),
+                     fn = function(x) {gt::web_image(x, height = 50)}) %>% tab_header(title = md("**Mucicipio con menor incidencia acumulada**"),subtitle = md("**Comunidad Valenciana**")) %>%
+  tab_options(heading.background.color = "tomato", column_labels.font.weight = "bold")
+
+```
+
+---
+
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, comment= FALSE}
+
+mapaCiudadyPueblomayorinciAcu <- leaflet() %>%
+  setView(lng = -0.243591, lat = 38.821, zoom = 7) %>% 
+  addMarkers(lng = -0.243591, lat = 38.821 , popup = "Vall de Gallinera")%>%
+  setView(lng = -0.418598, lat = 40.2011, zoom = 7) %>% 
+  addMarkers(lng = -0.418598, lat = 40.2011 , popup = "Villahermosa del rio") %>% addTiles()
+mapaCiudadyPueblomayorinciAcu
+
+```
+
+Situamos en un mapa a los dos municipios con mayor y menor índice de incidencia acumulada.
+
+---
+
+## <FONT COLOR="Green">Tasa de defunciones . </FONT>
+Mayor tasa de defunciones
+
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, comment= FALSE}
+
+# buscamos los 5 municipios que tienen un tasa de mortalidad mayor. Hacemos tabla y los situamos en el mapa
+
+dfgva <- rio::import("./datos/covid-19-casos-confirmados-por-pcr-casos-pcr-en-los-ultimos-14-dias-y-personas-fallecidas-por-mu.csv")
+dfpoblacion_gva <- rio::import("./datos/poblacion_muni_vlc.xls")
+load("./datos/geometrias_clase_10.RData")
+
+nombres_originales <- names(dfgva)
+
+names(dfgva)[1] <- "CodMunicipio"
+names(dfgva)[2] <- "Municipi"
+names(dfgva)[3] <- "Casos"
+names(dfgva)[4] <- "Incidencia_acumulada"
+names(dfgva)[5] <- "Casos_ult14d"
+names(dfgva)[6] <- "Incidencia_ acumulada_ult14d"
+names(dfgva)[7] <- "Defuncions"
+names(dfgva)[8] <- "Tasa_defuncion"
+
+dfgva <- dfgva %>% mutate(CodMunicipio = as.numeric(CodMunicipio))
+municipios_2017 <- municipios_2017 %>% mutate(INECodMuni = as.numeric(INECodMuni))
+dfpueblos <- inner_join(dfgva, municipios_2017, by = c("CodMunicipio" = "INECodMuni" ))
+dfpueblos_def <- inner_join(dfpueblos, dfpoblacion_gva, by = c("CodMunicipio" = "Codi_Municipi" ))
+dfmunicipios <- dfpueblos_def %>% select(`CodMunicipio`,`NombreMuni`, `Poblacions`,`Casos`,`Incidencia_acumulada`,`Defuncions`, `Casos_ult14d`, `Incidencia_ acumulada_ult14d`, `Tasa_defuncion`, `INECodProv`, `INECodCCAA`, `NombreMuni`, `NombreProv`, `geometry` )
+rm(dfgva,dfpoblacion_gva,dfpueblos,dfpueblos_def, municipios_2017, IGN_nomencla_muni, rios, world)
+
+dfmunicipios_masM <- dfmunicipios %>% slice_max(Tasa_defuncion, n = 5) %>% arrange(desc(`Tasa_defuncion`))
+
+dfmunicipios_masM_tabla <- dfmunicipios_masM %>% select(`NombreMuni`,`Poblacions`, `Tasa_defuncion`)%>% arrange(desc(`Tasa_defuncion`))
+
+dfmunicipios_masM_tabla %>%
+  kbl() %>%
+  kable_material_dark()
+
+```
+---
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, comment= FALSE}
+
+# Bandera del municipio con una mayor tasa de defunción
+
+dfgva <- rio::import("./datos/covid-19-casos-confirmados-por-pcr-casos-pcr-en-los-ultimos-14-dias-y-personas-fallecidas-por-mu.csv")
+dfpoblacion_gva <- rio::import("./datos/poblacion_muni_vlc.xls")
+load("./datos/geometrias_clase_10.RData")
+
+nombres_originales <- names(dfgva)
+
+names(dfgva)[1] <- "CodMunicipio"
+names(dfgva)[2] <- "Municipi"
+names(dfgva)[3] <- "Casos"
+names(dfgva)[4] <- "Incidencia_acumulada"
+names(dfgva)[5] <- "Casos_ult14d"
+names(dfgva)[6] <- "Incidencia_ acumulada_ult14d"
+names(dfgva)[7] <- "Defuncions"
+names(dfgva)[8] <- "Tasa_defuncion"
+
+dfgva <- dfgva %>% mutate(CodMunicipio = as.numeric(CodMunicipio))
+municipios_2017 <- municipios_2017 %>% mutate(INECodMuni = as.numeric(INECodMuni))
+dfpueblos <- inner_join(dfgva, municipios_2017, by = c("CodMunicipio" = "INECodMuni" ))
+dfpueblos_def <- inner_join(dfpueblos, dfpoblacion_gva, by = c("CodMunicipio" = "Codi_Municipi" ))
+dfmunicipios <- dfpueblos_def %>% select(`CodMunicipio`,`NombreMuni`, `Poblacions`,`Casos`,`Incidencia_acumulada`,`Defuncions`, `Casos_ult14d`, `Incidencia_ acumulada_ult14d`, `Tasa_defuncion`, `INECodProv`, `INECodCCAA`, `NombreMuni`, `NombreProv`, `geometry` )
+rm(dfgva,dfpoblacion_gva,dfpueblos,dfpueblos_def, municipios_2017, IGN_nomencla_muni, rios, world)
+
+municipioMayortasaM <- dfmunicipios %>% slice_max(Tasa_defuncion, n=1)
+
+ImagenVilla <- "https://www.comprarbanderas.es/images/banderas/400/7015-villahermosa-del-rio_400px.jpg"
+
+Tabla_municipioMayortasaM <- municipioMayortasaM %>% gt()
+
+Tabla_municipioMayortasaM <- municipioMayortasaM %>% group_by(NombreMuni) %>% slice_max(Tasa_defuncion, n = 1) %>% add_column(ImagenVilla) %>% 
+  select(NombreMuni,Poblacions, Tasa_defuncion,ImagenVilla) %>% ungroup()
+
+Tabla_municipioMayortasaM%>% gt() %>% 
+  gt::text_transform(locations = cells_body(columns = vars(ImagenVilla)),
+                     fn = function(x) {gt::web_image(x, height = 50)}) %>% tab_header(title = md("**Municipio con mayor tasa de mortalidad**"),subtitle = md("**Comunidad Valenciana**")) %>%
+  tab_options(heading.background.color = "black", column_labels.font.weight = "bold")
+
+```
+
+#Enlace a Noticia
+
+[Villahermosa del Río tiene la mayor tasa de mortalidad por la Covid-19 de toda la Comunitat Valenciana - Noticia El Periódico de Aquí](https://www.elperiodicodeaqui.com/epda-noticias/villahermosa-del-r-o-tiene-la-mayor-tasa-de-mortalidad-por-la-covid-19-de-toda-la-comunitat-valenciana/232396)
+---
+
+Menor tasa de defunciones
+
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, comment= FALSE}
+
+# buscamos las 5 municipios que tienen un tasa de mortalidad menor. Hacemos tabla y los situamos en el mapa
+# Aquí hay muchos pueblos con una tasa del 0. Hemos cogido 5 y ordenamos por población.
+
+
+dfgva <- rio::import("./datos/covid-19-casos-confirmados-por-pcr-casos-pcr-en-los-ultimos-14-dias-y-personas-fallecidas-por-mu.csv")
+dfpoblacion_gva <- rio::import("./datos/poblacion_muni_vlc.xls")
+load("./datos/geometrias_clase_10.RData")
+
+nombres_originales <- names(dfgva)
+
+names(dfgva)[1] <- "CodMunicipio"
+names(dfgva)[2] <- "Municipi"
+names(dfgva)[3] <- "Casos"
+names(dfgva)[4] <- "Incidencia_acumulada"
+names(dfgva)[5] <- "Casos_ult14d"
+names(dfgva)[6] <- "Incidencia_ acumulada_ult14d"
+names(dfgva)[7] <- "Defuncions"
+names(dfgva)[8] <- "Tasa_defuncion"
+
+dfgva <- dfgva %>% mutate(CodMunicipio = as.numeric(CodMunicipio))
+municipios_2017 <- municipios_2017 %>% mutate(INECodMuni = as.numeric(INECodMuni))
+dfpueblos <- inner_join(dfgva, municipios_2017, by = c("CodMunicipio" = "INECodMuni" ))
+dfpueblos_def <- inner_join(dfpueblos, dfpoblacion_gva, by = c("CodMunicipio" = "Codi_Municipi" ))
+dfmunicipios <- dfpueblos_def %>% select(`CodMunicipio`,`NombreMuni`, `Poblacions`,`Casos`,`Incidencia_acumulada`,`Defuncions`, `Casos_ult14d`, `Incidencia_ acumulada_ult14d`, `Tasa_defuncion`, `INECodProv`, `INECodCCAA`, `NombreMuni`, `NombreProv`, `geometry` )
+rm(dfgva,dfpoblacion_gva,dfpueblos,dfpueblos_def, municipios_2017, IGN_nomencla_muni, rios, world)
+
+dfmunicipios_menosM <- dfmunicipios %>% slice_min(Tasa_defuncion, n = 5) %>% arrange(desc(`Poblacions`)) %>% slice(1:5) 
+
+dfmunicipios_menosM_tabla <- dfmunicipios_menosM %>% select(`NombreMuni`,`Poblacions`, `Tasa_defuncion`)%>% arrange(desc(`Tasa_defuncion`))
+
+dfmunicipios_menosM_tabla %>%
+  kbl() %>%
+  kable_material_dark()
+
+
+```
+
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, comment= FALSE}
+
+# Hemos puesto la bandera del municipio con la tasa de mortalidad más baja y que además tenía la poblacion mayor
+
+dfgva <- rio::import("./datos/covid-19-casos-confirmados-por-pcr-casos-pcr-en-los-ultimos-14-dias-y-personas-fallecidas-por-mu.csv")
+dfpoblacion_gva <- rio::import("./datos/poblacion_muni_vlc.xls")
+load("./datos/geometrias_clase_10.RData")
+
+nombres_originales <- names(dfgva)
+
+names(dfgva)[1] <- "CodMunicipio"
+names(dfgva)[2] <- "Municipi"
+names(dfgva)[3] <- "Casos"
+names(dfgva)[4] <- "Incidencia_acumulada"
+names(dfgva)[5] <- "Casos_ult14d"
+names(dfgva)[6] <- "Incidencia_ acumulada_ult14d"
+names(dfgva)[7] <- "Defuncions"
+names(dfgva)[8] <- "Tasa_defuncion"
+
+dfgva <- dfgva %>% mutate(CodMunicipio = as.numeric(CodMunicipio))
+municipios_2017 <- municipios_2017 %>% mutate(INECodMuni = as.numeric(INECodMuni))
+dfpueblos <- inner_join(dfgva, municipios_2017, by = c("CodMunicipio" = "INECodMuni" ))
+dfpueblos_def <- inner_join(dfpueblos, dfpoblacion_gva, by = c("CodMunicipio" = "Codi_Municipi" ))
+dfmunicipios <- dfpueblos_def %>% select(`CodMunicipio`,`NombreMuni`, `Poblacions`,`Casos`,`Incidencia_acumulada`,`Defuncions`, `Casos_ult14d`, `Incidencia_ acumulada_ult14d`, `Tasa_defuncion`, `INECodProv`, `INECodCCAA`, `NombreMuni`, `NombreProv`, `geometry` )
+rm(dfgva,dfpoblacion_gva,dfpueblos,dfpueblos_def, municipios_2017, IGN_nomencla_muni, rios, world)
+
+
+municipioMenortasaM <- dfmunicipios %>% slice_min(Tasa_defuncion, n = 20) %>% arrange(desc(`Poblacions`)) %>% slice(1:1) 
+
+ImagenBeguasil <- "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Escut_de_Benaguasil.svg/101px-Escut_de_Benaguasil.svg.png"
+
+Tabla_municipioMenortasaM <- municipioMenortasaM %>% gt()
+
+Tabla_municipioMenortasaM <- municipioMenortasaM %>% group_by(NombreMuni) %>% slice_max(Tasa_defuncion, n = 1) %>% add_column(ImagenBeguasil) %>% 
+  select(NombreMuni,Poblacions,Tasa_defuncion,ImagenBeguasil) %>% ungroup()
+
+Tabla_municipioMenortasaM%>% gt() %>% 
+  gt::text_transform(locations = cells_body(columns = vars(ImagenBeguasil)),
+                     fn = function(x) {gt::web_image(x, height = 50)}) %>% tab_header(title = md("**Municipio con menor tasa de mortalidad**"),subtitle = md("**Comunidad Valenciana**")) %>%
+  tab_options(heading.background.color = "black", column_labels.font.weight = "bold")
+
+```
+---
+
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, comment= FALSE}
+
+mapaCiudadyPueblomenortasaM <- leaflet() %>%
+  setView(lng = -0.589056, lat = 39.5915, zoom = 7) %>% 
+  addMarkers(lng = -0.589056, lat = 39.5915 , popup = "Benaguasil")%>%
+  setView(lng = -0.418598, lat = 40.2011, zoom = 7) %>% 
+  addMarkers(lng = -0.418598, lat = 40.2011 , popup = "Villahermosa del rio") %>% addTiles()
+mapaCiudadyPueblomenortasaM
+
+```
+
+Situamos en un mapa a los dos municipios con mayor y menor tasa de defunciones.
+
+---
+
+## <FONT COLOR="Green">Defunciones . </FONT>
+Hemos querido mostrar los 10 municipios con más fallecidos y mostrar cuantos han tenido.
+
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, comment= FALSE}
+
+#buscamos los 10 municipios que han tenido mayor número de fallecidos para que se vean las muertes en números absolutos. Hacemos tabla.
+
+dfgva <- rio::import("./datos/covid-19-casos-confirmados-por-pcr-casos-pcr-en-los-ultimos-14-dias-y-personas-fallecidas-por-mu.csv")
+dfpoblacion_gva <- rio::import("./datos/poblacion_muni_vlc.xls")
+load("./datos/geometrias_clase_10.RData")
+
+nombres_originales <- names(dfgva)
+
+names(dfgva)[1] <- "CodMunicipio"
+names(dfgva)[2] <- "Municipi"
+names(dfgva)[3] <- "Casos"
+names(dfgva)[4] <- "Incidencia_acumulada"
+names(dfgva)[5] <- "Casos_ult14d"
+names(dfgva)[6] <- "Incidencia_ acumulada_ult14d"
+names(dfgva)[7] <- "Defuncions"
+names(dfgva)[8] <- "Tasa_defuncion"
+
+dfgva <- dfgva %>% mutate(CodMunicipio = as.numeric(CodMunicipio))
+municipios_2017 <- municipios_2017 %>% mutate(INECodMuni = as.numeric(INECodMuni))
+dfpueblos <- inner_join(dfgva, municipios_2017, by = c("CodMunicipio" = "INECodMuni" ))
+dfpueblos_def <- inner_join(dfpueblos, dfpoblacion_gva, by = c("CodMunicipio" = "Codi_Municipi" ))
+dfmunicipios <- dfpueblos_def %>% select(`CodMunicipio`,`NombreMuni`, `Poblacions`,`Casos`,`Incidencia_acumulada`,`Defuncions`, `Casos_ult14d`, `Incidencia_ acumulada_ult14d`, `Tasa_defuncion`, `INECodProv`, `INECodCCAA`, `NombreMuni`, `NombreProv`, `geometry` )
+rm(dfgva,dfpoblacion_gva,dfpueblos,dfpueblos_def, municipios_2017, IGN_nomencla_muni, rios, world)
+
+dfmunicipios_masF <- dfmunicipios %>% slice_max(Defuncions, n = 10) %>% arrange(desc(`Defuncions`))
+
+dfmunicipios_masF_tabla <- dfmunicipios_masF  %>% select(`NombreMuni`,`Poblacions`, `Defuncions`) %>% arrange(desc(`Defuncions`))
+
+dfmunicipios_masF_tabla %>%
+  kbl(caption = "Pueblos con más fallecidos") %>%
+  kable_minimal(full_width = F) %>% kable_styling(bootstrap_options = c("striped", "hover")) %>% row_spec(row = 0 ,background = "#DAF7A6 ", font_size = 15)
+
+
+```
+
+---
+
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, comment= FALSE,,out.width = '600px',out.height= '30px',fig.align='center'}
+#escudo ciudad más muertes
+
+dfgva <- rio::import("./datos/covid-19-casos-confirmados-por-pcr-casos-pcr-en-los-ultimos-14-dias-y-personas-fallecidas-por-mu.csv")
+dfpoblacion_gva <- rio::import("./datos/poblacion_muni_vlc.xls")
+load("./datos/geometrias_clase_10.RData")
+
+nombres_originales <- names(dfgva)
+
+names(dfgva)[1] <- "CodMunicipio"
+names(dfgva)[2] <- "Municipi"
+names(dfgva)[3] <- "Casos"
+names(dfgva)[4] <- "Incidencia_acumulada"
+names(dfgva)[5] <- "Casos_ult14d"
+names(dfgva)[6] <- "Incidencia_ acumulada_ult14d"
+names(dfgva)[7] <- "Defuncions"
+names(dfgva)[8] <- "Tasa_defuncion"
+
+dfgva <- dfgva %>% mutate(CodMunicipio = as.numeric(CodMunicipio))
+municipios_2017 <- municipios_2017 %>% mutate(INECodMuni = as.numeric(INECodMuni))
+dfpueblos <- inner_join(dfgva, municipios_2017, by = c("CodMunicipio" = "INECodMuni" ))
+dfpueblos_def <- inner_join(dfpueblos, dfpoblacion_gva, by = c("CodMunicipio" = "Codi_Municipi" ))
+dfmunicipios <- dfpueblos_def %>% select(`CodMunicipio`,`NombreMuni`, `Poblacions`,`Casos`,`Incidencia_acumulada`,`Defuncions`, `Casos_ult14d`, `Incidencia_ acumulada_ult14d`, `Tasa_defuncion`, `INECodProv`, `INECodCCAA`, `NombreMuni`, `NombreProv`, `geometry` )
+rm(dfgva,dfpoblacion_gva,dfpueblos,dfpueblos_def, municipios_2017, IGN_nomencla_muni, rios, world)
+
+MunicipioMasMuertes <- dfmunicipios %>% slice_max(Defuncions, n=1)
+
+ImagenValencia <- "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Escut_de_Val%C3%A8ncia.svg/108px-Escut_de_Val%C3%A8ncia.svg.png"
+
+Tabla_MunicipiomasMuertes <- MunicipioMasMuertes %>% gt()
+
+Tabla_MunicipiomasMuertes <- MunicipioMasMuertes %>% group_by(NombreMuni) %>% slice_max(Defuncions, n = 1) %>% add_column(ImagenValencia) %>% 
+  select(NombreMuni,Poblacions,Defuncions,ImagenValencia) %>% ungroup()
+
+Tabla_MunicipiomasMuertes %>% gt() %>% 
+  gt::text_transform(locations = cells_body(columns = vars(ImagenValencia)),
+                     fn = function(x) {gt::web_image(x, height = 50)}) %>% tab_header(title = md("Municipio con más defunciones"),subtitle = md("Comunidad Valenciana")) %>%
+  tab_options(heading.background.color = "black", column_labels.font.weight = "bold")
+
+```
+
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, comment= FALSE}
+
+mapaCiudadMasMuertes <- leaflet() %>%
+  setView(lng = -0.37739, lat = 39.46975, zoom = 11) %>% 
+  addMarkers(lng = -0.37739, lat = 39.46975 , popup = "Valencia") %>% addTiles()
+mapaCiudadMasMuertes
+
+```
+---
+
+## <FONT COLOR="Green">6. Consejo. </FONT>
+
+> El amanecer llega después de la oscuridad — Lisa Wingate.
+
+```{r echo=FALSE, out.width = "500px", out.height="250px",fig.align='center'}
+knitr::include_graphics("imagenes/familia_feliz.jpg")
+```
+
+<CENTER><FONT COLOR="Grey">"Salvemos la Navidad de 2021"</FONT></CENTER>
